@@ -6,7 +6,7 @@ def limpiar_consola():
 
 
 def seleccionar_video(carpeta="videos"):
-    limpiar_consola()
+    # limpiar_consola()
     videos = [f for f in os.listdir(carpeta) if f.lower().endswith((".mp4", ".avi", ".mov"))]
 
     if not videos:
@@ -21,7 +21,7 @@ def seleccionar_video(carpeta="videos"):
     return os.path.join(carpeta, seleccion)
 
 def elegir_roi():
-    limpiar_consola()
+    # limpiar_consola()
     opcion = questionary.select(
         "Seleccioná una opción:",
         choices=[
@@ -35,7 +35,7 @@ def elegir_roi():
 
 
 def elegir_tolerancia_frames():
-    limpiar_consola()
+    # limpiar_consola()
     opcion = questionary.select(
         "Seleccioná una opción:",
         choices=[
