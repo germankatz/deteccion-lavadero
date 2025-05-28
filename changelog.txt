@@ -1,0 +1,8 @@
+28/05/2025 - 00:46
+
+- Había commiteado algo mal en roi_selector.. ahora hace el seguimiento del ROI correctamente.
+- El ROI por Default ahora toma la parte de la patente y la sigue.. hay que darle un par de iteraciones para que, si desaparece, vuelva al lugar "inicial", eso va a ser posible cuando sepa detectar bien la patente realmente.
+- Empecé a ver el detector de patente.. el problema está en que no la toma como tal con una binarización.. pero no está lejos, hay que jugar un poco con los parámetros.. intenté cerrar las curvas pero tampoco anda como quiero.
+- Si lo corren, van a ver que muestra el ROI en la imagen, y el sectorizado.. hay que jugar con el sectorizado en patente_detector
+- Le dejé la consola sin limpiar para un mejor debug
+- Al main le comenté cosas para ir paso por paso viendo..
