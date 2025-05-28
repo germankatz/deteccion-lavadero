@@ -8,8 +8,6 @@ from utils.patente_detector import detectar_patente
 from utils.patente_lector import leer_patente
 from utils.patente_tracker import PatenteTracker
 
-
-
 def main():
 
     # Video selector
@@ -40,16 +38,18 @@ def main():
         return
 
     tracker = PatenteTracker(tolerancia_frames=10)
-    
+    roi_selector.mostrar_video_con_roi(video_path)
+
+
     while True:
         ret, frame = cap.read()
         if not ret:
             break
             
-        roi_rect = rectificar_roi(frame, roi_selector.roi)
-        imagen_patente = detectar_patente(roi_rect)
-        texto = leer_patente(imagen_patente)
-        tracker.actualizar(texto)
+        # roi_rect = rectificar_roi(frame, roi_selector.roi)
+        # imagen_patente = detectar_patente(roi_rect)
+        # texto = leer_patente(imagen_patente)
+        # tracker.actualizar(texto)
 
     # Liberar recursos
     cap.release()
