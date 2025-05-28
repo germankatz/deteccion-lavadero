@@ -6,3 +6,10 @@
 - Si lo corren, van a ver que muestra el ROI en la imagen, y el sectorizado.. hay que jugar con el sectorizado en patente_detector
 - Le dejé la consola sin limpiar para un mejor debug
 - Al main le comenté cosas para ir paso por paso viendo..
+
+
+28/05/2025 - 14:30
+
+- Hay un primer cambio con respecto a lo anterior, el tema es que si se agranda el ROI, deja de detectar la patente como tal.. si se usa la default (lo cual esta hardcoded) funciona.
+- También mete como "saltos", que hay que rescatar un poco
+- Creo que como para probar el OCR tendríamos.. hay que rectificar y alguna que otra cosita más. No está nada comentado porque me pelié un poco con ChatGPT a ver que me hacía, y buscar otros lados (https://www.youtube.com/watch?v=nQTRqScnX7s&ab_channel=ElLocodelosDatos)
