@@ -7,8 +7,8 @@ class RoiSelector:
         self.roi = None
 
     def usar_roi_por_defecto(self):
-        # self.roi = (370, 559, 349, 449)
-        self.roi = (458, 971, 116, 90)
+        self.roi = (333, 551, 382, 714)
+        #self.roi = (458, 971, 116, 90)
         print(f"✅ ROI por defecto: {self.roi}")
 
     def _get_screen_size(self):
