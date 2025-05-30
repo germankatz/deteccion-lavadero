@@ -5,15 +5,25 @@ Sistema de detección y seguimiento de patentes de vehículos en un lavadero med
 ## Características
 
 - Selección de región de interés (ROI) para la detección de patentes
-- Detección automática de patentes en la región seleccionada
-- Lectura de texto de las patentes
-- Seguimiento temporal de las patentes detectadas
+  - ROI por defecto predefinido
+  - Selección manual del ROI en el primer frame
+- Múltiples métodos de detección de patentes:
+  - Pattern matching con rectificación de perspectiva
+  - Método alternativo con seguimiento temporal
+- Rectificación de perspectiva con dos métodos:
+  - Rectificación hardcoded con homografía predefinida
+  - Rectificación manual con selección de puntos
 - Interfaz de usuario interactiva para configuración
+- Seguimiento temporal de patentes con tolerancia configurable
+- Visualización en tiempo real de la detección
 
 ## Requisitos
 
 - Python 3.8 o superior
 - pip (gestor de paquetes de Python)
+- OpenCV
+- NumPy
+- Questionary (para la interfaz de usuario)
 
 ## Instalación
 
@@ -42,7 +52,6 @@ pip install -r req.txt
 sudo apt install python3-tk
 ```
 
-
 ## Estructura del Proyecto
 
 ```
@@ -56,7 +65,8 @@ deteccion-lavadero/
     ├── roi_rectifier.py    # Rectificación de perspectiva
     ├── patente_detector.py # Detección de patentes
     ├── patente_lector.py   # Lectura de texto de patentes
-    └── patente_tracker.py  # Seguimiento temporal
+    ├── patente_tracker.py  # Seguimiento temporal
+    └── calcula_homografia.py # Cálculo de homografía
 ```
 
 ## Uso
@@ -70,8 +80,28 @@ python main.py
 ```
 
 3. Seguir las instrucciones en pantalla:
-   - Seleccionar el video a procesar de la lista de archivos en /video
-   - Elegir el método de selección de ROI de la cochera:
+   - Seleccionar el video a procesar de la lista de archivos en /videos
+   - Elegir el método de selección de ROI:
      - Usar ROI por defecto
      - Marcar ROI manualmente
-   - Configurar la tolerancia de frames para el seguimiento
+   - Seleccionar el método de detección de patentes:
+     - Pattern matching con rectificación
+     - Método alternativo con seguimiento
+   - Si se elige pattern matching:
+     - Elegir método de rectificación (hardcoded o manual)
+     - Si es manual, seleccionar los puntos para la homografía
+   - Si se elige método alternativo:
+     - Configurar la tolerancia de frames para el seguimiento
+
+## Controles
+
+- Durante la selección manual de ROI:
+  - Arrastrar para seleccionar el área
+  - ENTER para confirmar
+  - ESC para cancelar
+- Durante la visualización:
+  - 'q' para salir
+  - Durante la selección de homografía:
+    - Arrastrar puntos para ajustar
+    - 's' para guardar
+    - 'q' para cancelar
