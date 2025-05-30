@@ -36,7 +36,12 @@ python -m venv venv
 
 ```bash
 pip install -r req.txt
+
+# req.txt no incluye tkinter porque debe instalarse con el gestor de paquetes del sistema:
+# En Ubuntu/Debian:
+sudo apt install python3-tk
 ```
+
 
 ## Estructura del Proyecto
 
