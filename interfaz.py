@@ -53,3 +53,24 @@ def elegir_tolerancia_frames():
         ).ask() 
     elif opcion[0] == "0":
         return None
+    
+def elegir_angulo():
+    # limpiar_consola()
+    opcion = questionary.select(
+        "Seleccioná una opción:",
+        choices=[
+            "1. Usar angulo por defecto (60 grados)",
+            "2. Ingresar angulo manualmente (en grados)",
+            "0. Salir"
+        ]
+    ).ask()
+
+    if opcion[0] == "1":
+        return 60
+    elif opcion[0] == "2":
+        return questionary.text(
+            "Ingresá el angulo en grados:"
+        ).ask()
+    elif opcion[0] == "0":
+        return None
+
