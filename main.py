@@ -4,7 +4,7 @@ from utils.roi_selector import RoiSelector
 from interfaz import elegir_roi, seleccionar_video, elegir_tolerancia_frames, elegir_metodo_patente, elegir_metodo_rectificacion, calcular_homografia
 from utils.roi_selector import RoiSelector
 from utils.roi_rectifier import rectificar_roi, rectificar_roi_hardcoded, M_default, dst_corners_default
-from utils.patente_detector import detectar_patente
+from utils.patente_detector import detectar_y_visualizar_patentes, detectar_patentes_pattern_matching
 from utils.patente_lector import leer_patente
 from utils.patente_tracker import PatenteTracker
 from utils.calcula_homografia import pick_points_and_compute_homography
@@ -63,8 +63,19 @@ def main():
 
                 roi_rectificado = rectificar_roi_hardcoded(frame, roi_selector.roi, M, dst_corners)
 
+                # Detectar patente
+                info = detectar_patentes_pattern_matching(roi_rectificado)
 
+                gan = info['best']
+                lbl = info['label']
 
+                # Dibujar rectángulo y etiqueta
+                tl = gan['max_loc']
+                br = (tl[0] + gan['w'], tl[1] + gan['h'])
+                cv2.rectangle(roi_rectificado, tl, br, (0,255,0), 2)
+                texto = f"{lbl} (val={gan['max_val']:.2f}, scale={gan['best_scale']})"
+                # cv2.putText(roi_rectificado, texto, (tl[0], tl[1]-10),
+                #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
                 # mostrar imagen como video
                 cv2.imshow("Imagen patente", roi_rectificado)
                 # esperar 300ms 

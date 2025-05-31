@@ -52,6 +52,4 @@ def rectificar_roi_hardcoded(imagen, roi, M = M_default, dst_corners = dst_corne
 
     # aplicamos warpPerspective sobre la imagen completa
     warp = cv2.warpPerspective(image_roi, M, output_size)
-    # convertimos a gris
-    gris = cv2.cvtColor(warp, cv2.COLOR_BGR2GRAY)
-    return gris
+    return warp

@@ -3,6 +3,7 @@ import questionary
 
 def limpiar_consola():
     os.system("cls" if os.name == "nt" else "clear")
+    return 
 
 
 def seleccionar_video(carpeta="videos"):
