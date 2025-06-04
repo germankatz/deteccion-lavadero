@@ -36,12 +36,24 @@ dst_corners_default = [
     (463, 518),
     (210, 622),
 ]
+# ##### N and points for horizontal
+# M_default = np.array([
+#     [ 1.416052,    0.335372,  -23.552632],
+#     [-0.044943,    1.110917,   77.723686],
+#     [ 0.000502,    0.000388,    1.000000],
+# ], dtype=np.float32)
+
+# dst_corners_default = [
+#     (-23.55263157894737,  77.72368421052632),
+#     (857.3157894736842,   25.907894736842106),
+#     (858.4934210526316,  449.85526315789474),
+#     (156.625,            642.9868421052631),
+# ]
 
 
 def rectificar_roi_hardcoded(imagen, roi, M = M_default, dst_corners = dst_corners_default):
     x, y, w, h = roi
     image_roi = imagen[y : y + h, x : x + w]
-
 
     # Transformación hardcoded
     xs = [p[0] for p in dst_corners]

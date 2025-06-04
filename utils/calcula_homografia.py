@@ -21,33 +21,46 @@ def pick_points_and_compute_homography(imagen, roi):
     radius = 8
     color = (0, 255, 0)
     
-    # Configurar el lienzo grande
+    # Configurar el lienzo adaptativo
     canvas_size = 800
     canvas = np.zeros((canvas_size, canvas_size, 3), dtype=np.uint8)
     
-    # Calcular posición para centrar la imagen original en el lienzo
+    # Obtener dimensiones de la imagen
     img_h, img_w = image.shape[:2]
-    start_x = (canvas_size - img_w) // 2
-    start_y = (canvas_size - img_h) // 2
+    
+    # Redimensionar imagen si es más grande que el lienzo
+    scale_factor = 1.0
+    if img_w > canvas_size - 40 or img_h > canvas_size - 40:  # Dejar margen de 20px por lado
+        scale_factor = min((canvas_size - 40) / img_w, (canvas_size - 40) / img_h)
+        new_w = int(img_w * scale_factor)
+        new_h = int(img_h * scale_factor)
+        image_display = cv2.resize(image, (new_w, new_h))
+    else:
+        image_display = image.copy()
+        new_w, new_h = img_w, img_h
+    
+    # Calcular posición para centrar la imagen redimensionada en el lienzo
+    start_x = (canvas_size - new_w) // 2
+    start_y = (canvas_size - new_h) // 2
     
     # Inicializar 4 puntos en las esquinas de la imagen (en coordenadas del lienzo)
     pts = [
-        (start_x, start_y),                    # TL
-        (start_x + img_w - 1, start_y),        # TR
-        (start_x + img_w - 1, start_y + img_h - 1),  # BR
-        (start_x, start_y + img_h - 1)         # BL
+        (start_x, start_y),                           # TL
+        (start_x + new_w - 1, start_y),              # TR
+        (start_x + new_w - 1, start_y + new_h - 1),  # BR
+        (start_x, start_y + new_h - 1)               # BL
     ]
 
     def draw_interface(canvas_bg):
         # Limpiar lienzo
         canvas_display = canvas_bg.copy()
         
-        # Dibujar la imagen original en el centro
-        canvas_display[start_y:start_y + img_h, start_x:start_x + img_w] = image
+        # Dibujar la imagen redimensionada en el centro
+        canvas_display[start_y:start_y + new_h, start_x:start_x + new_w] = image_display
         
-        # Dibujar un borde alrededor de la imagen original para referencia
+        # Dibujar un borde alrededor de la imagen para referencia
         cv2.rectangle(canvas_display, (start_x-2, start_y-2), 
-                     (start_x + img_w + 1, start_y + img_h + 1), (100, 100, 100), 2)
+                     (start_x + new_w + 1, start_y + new_h + 1), (100, 100, 100), 2)
         
         # Dibujar los puntos
         for i, (px, py) in enumerate(pts):
@@ -61,12 +74,12 @@ def pick_points_and_compute_homography(imagen, roi):
 
     def update_transformation():
         try:
-            # Puntos fuente (esquinas de la imagen original)
+            # Puntos fuente (esquinas de la imagen redimensionada)
             src = np.array([
                 (start_x, start_y),
-                (start_x + img_w - 1, start_y),
-                (start_x + img_w - 1, start_y + img_h - 1),
-                (start_x, start_y + img_h - 1)
+                (start_x + new_w - 1, start_y),
+                (start_x + new_w - 1, start_y + new_h - 1),
+                (start_x, start_y + new_h - 1)
             ], dtype=np.float32)
             
             dst = np.array(pts, dtype=np.float32)
@@ -77,9 +90,9 @@ def pick_points_and_compute_homography(imagen, roi):
             # Crear lienzo para la transformación
             transformed_canvas = np.zeros((canvas_size, canvas_size, 3), dtype=np.uint8)
             
-            # Aplicar transformación solo a la región de la imagen original
+            # Aplicar transformación solo a la región de la imagen
             img_with_padding = np.zeros((canvas_size, canvas_size, 3), dtype=np.uint8)
-            img_with_padding[start_y:start_y + img_h, start_x:start_x + img_w] = image
+            img_with_padding[start_y:start_y + new_h, start_x:start_x + new_w] = image_display
             
             transformed_canvas = cv2.warpPerspective(img_with_padding, M, (canvas_size, canvas_size))
             
@@ -109,6 +122,12 @@ def pick_points_and_compute_homography(imagen, roi):
             cv2.putText(combined, "TRANSFORMACION", (canvas_size + 20, 30), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
             
+            # Mostrar factor de escala si se redimensionó
+            if scale_factor != 1.0:
+                scale_text = f"Escala: {scale_factor:.2f}"
+                cv2.putText(combined, scale_text, (20, canvas_size - 20), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
+            
             return combined
             
         except Exception as e:
@@ -118,6 +137,8 @@ def pick_points_and_compute_homography(imagen, roi):
             combined[:, :canvas_size] = error_view
             cv2.putText(combined, "Transformación inválida", (canvas_size + 50, canvas_size//2), 
                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+            cv2.putText(combined, f"Error: {str(e)}", (canvas_size + 20, canvas_size//2 + 40), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
             return combined
 
     def mouse_cb(event, x, y, flags, param):
@@ -149,23 +170,32 @@ def pick_points_and_compute_homography(imagen, roi):
         
         key = cv2.waitKey(20) & 0xFF
         if key == ord('s'):
-            # Calcular homografía final (convertir puntos a coordenadas relativas de la imagen original)
+            # Calcular homografía final (convertir puntos a coordenadas de la imagen ORIGINAL)
+            # Puntos fuente en coordenadas de imagen original (sin redimensionar)
             src = np.array([(0, 0), (img_w-1, 0), (img_w-1, img_h-1), (0, img_h-1)], dtype=np.float32)
             
-            # Convertir puntos del lienzo a coordenadas relativas de la imagen
+            # Convertir puntos del lienzo a coordenadas de la imagen original
             pts_relative = []
             for px, py in pts:
-                rel_x = px - start_x
-                rel_y = py - start_y
-                pts_relative.append((rel_x, rel_y))
+                # Convertir de coordenadas del lienzo a coordenadas de imagen redimensionada
+                rel_x_resized = px - start_x
+                rel_y_resized = py - start_y
+                
+                # Convertir de coordenadas de imagen redimensionada a imagen original
+                rel_x_original = rel_x_resized / scale_factor
+                rel_y_original = rel_y_resized / scale_factor
+                
+                pts_relative.append((rel_x_original, rel_y_original))
             
             dst = np.array(pts_relative, dtype=np.float32)
             M = cv2.getPerspectiveTransform(src, dst)
             
             print("Matriz de homografía (3x3):")
             print(M)
-            print("Puntos destino (relativos a la imagen ROI):", pts_relative)
-            print("Puntos destino (coordenadas del lienzo):", pts)
+            print("Puntos destino (coordenadas originales de la imagen ROI):", pts_relative)
+            print("Factor de escala usado para visualización:", scale_factor)
+            print("Dimensiones imagen original:", img_w, "x", img_h)
+            print("Dimensiones imagen mostrada:", new_w, "x", new_h)
             break
         elif key == ord('q'):
             M = None

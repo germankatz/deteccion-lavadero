@@ -4,7 +4,7 @@ from utils.roi_selector import RoiSelector
 from interfaz import elegir_roi, seleccionar_video, elegir_tolerancia_frames, elegir_metodo_patente, elegir_metodo_rectificacion, calcular_homografia
 from utils.roi_selector import RoiSelector
 from utils.roi_rectifier import rectificar_roi, rectificar_roi_hardcoded, M_default, dst_corners_default
-from utils.patente_detector import detectar_y_visualizar_patentes, detectar_patentes_pattern_matching
+from utils.patente_detector import detectar_patentes_pattern_matching, detectar_patente
 from utils.patente_lector import leer_patente
 from utils.patente_tracker import PatenteTracker
 from utils.calcula_homografia import pick_points_and_compute_homography
@@ -27,6 +27,7 @@ def main():
     elif opcion == "0":
         return print("Saliendo...")
     
+    print(f"ROI seleccionada: {roi_selector.roi}")
     
     # Abrir el video
     cap = cv2.VideoCapture(video_path)
@@ -65,28 +66,26 @@ def main():
 
                 # Detectar patente
                 info = detectar_patentes_pattern_matching(roi_rectificado)
-
                 gan = info['best']
                 lbl = info['label']
 
-                # Dibujar rectángulo y etiqueta
-                tl = gan['max_loc']
-                br = (tl[0] + gan['w'], tl[1] + gan['h'])
-                cv2.rectangle(roi_rectificado, tl, br, (0,255,0), 2)
-                texto = f"{lbl} (val={gan['max_val']:.2f}, scale={gan['best_scale']})"
-                # cv2.putText(roi_rectificado, texto, (tl[0], tl[1]-10),
-                #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
-                # mostrar imagen como video
-                cv2.imshow("Imagen patente", roi_rectificado)
-                # esperar 300ms 
+                # Si no hay location válida, saltamos dibujado de rectángulo
+                if gan['max_loc'] is not None:
+                    tl = gan['max_loc']
+                    br = (tl[0] + gan['w'], tl[1] + gan['h'])
+                    cv2.rectangle(roi_rectificado, tl, br, (0, 255, 0), 2)
+                    texto = f"{lbl} (val={gan['max_val']:.2f}, scale={gan['best_scale']})"
+                    # Si quieres mostrar texto, descomenta esto:
+                    # cv2.putText(roi_rectificado, texto, (tl[0], tl[1] - 10),
+                    #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
                 cv2.imshow("Imagen patente", roi_rectificado)
 
                 if cv2.waitKey(30) & 0xFF == ord('q'):
                     break
+
             cap.release()
             cv2.destroyAllWindows()
-
-
 
         elif metodo_rectificacion == "rectificacion_roi":
             ret, frame = cap.read()
@@ -99,17 +98,34 @@ def main():
             return print("Saliendo...")
 
         tracker = PatenteTracker(tolerancia_frames=10)
-        roi_selector.mostrar_video_con_roi(video_path)
+        # roi_selector.mostrar_video_con_roi(video_path)
 
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
-                
-            # roi_rect = rectificar_roi(frame, roi_selector.roi)
-            # imagen_patente = detectar_patente(roi_rect)
-            # texto = leer_patente(imagen_patente)
-            # tracker.actualizar(texto)
+            
+            # 1. Rectificar ROI
+            roi_rect = rectificar_roi_hardcoded(frame, roi_selector.roi)
+            
+            # 2. Detectar patente usando la función del archivo
+            bw_image, mejor_candidato, img_contornos = detectar_patente(roi_rect)
+           
+            # Si se detectó una patente válida
+            if mejor_candidato is not None and patente_roi is not None:
+                texto = leer_patente(patente_roi)  # Usar directamente la región extraída
+                tracker.actualizar(texto)
+            else:
+                print("No hay patente válida en este frame")
+            
+            # Opcional: Mostrar el frame procesado
+            cv2.imshow('ROI con detección', roi_rect)
+            cv2.imshow('Imagen binarizada', bw_image)
+            cv2.imshow('Contornos', img_contornos)
+            
+            # Salir con 'q'
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
         # Liberar recursos
         cap.release()
