@@ -1,25 +1,30 @@
-import cv2
 import pytesseract
+import re
+import cv2
 import numpy as np
 import os
-import pytesseract
 import matplotlib.pyplot as plt
 
-def leer_patente():
+def leer_patente(img_patente):
     """
     Realiza OCR sobre la imagen de la patente y devuelve el texto.
     """
+    if img is None:
+        print("❌ Error: no se pudo cargar la imagen.")
+        return ""
+    else:
+        print("✅ Imagen cargada. Dimensiones:", img.shape)
 
     # Ruta absoluta basada en la ubicación del script actual
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # sube desde utils/
-    ruta_img = os.path.join(base_dir, 'img_src', 'Screen_3.png')
+    #base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # sube desde utils/
+    #ruta_img = os.path.join(base_dir, 'img_src', 'Screen_3.png')
 
-    print(os.path.exists(ruta_img)) 
-    print("Ruta completa:", ruta_img)  # podés verificar que esté bien
-    img_rotada = cv2.imread(ruta_img)
+    #print(os.path.exists(ruta_img)) 
+    #print("Ruta completa:", ruta_img)  # podés verificar que esté bien
+    #img_rotada = cv2.imread(ruta_img)
  
  
-    img = extraer_patente_desde_rectangulo_verde(img_rotada)
+    img = extraer_patente_desde_rectangulo_verde(img_patente)
     #cv2.imshow("Patente recortada", img)
     #cv2.waitKey(0)
     # Cargar imagen
@@ -28,20 +33,8 @@ def leer_patente():
     #roi = (0, 0, ancho, alto)
     #img = rectificar_roi(img_rotada,roi,20)
     
-    if img is None:
-        print("❌ Error: no se pudo cargar la imagen.")
-        return ""
-    else:
-        print("✅ Imagen cargada. Dimensiones:", img.shape)
-
-
-    #binaria = preprocesar_para_ocr(img)
-    
+    #binaria = preprocesar_para_ocr(img)    
    
-    #cv2.imshow("img_agrandada", img)
-    #cv2.waitKey(0)  # Espera que presiones una tecla
-    #cv2.destroyAllWindows()
-
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     izq, centro, der = dividir_patente_en_tres(img)
@@ -61,12 +54,7 @@ def leer_patente():
 
     return  patente_final.strip()
 
-import pytesseract
-import re
 
-import cv2
-import numpy as np
-import pytesseract
 
 def dividir_patente_en_tres(img_patente):
     h, w = img_patente.shape[:2]
@@ -223,4 +211,4 @@ def rectificar_roi(imagen, roi, angulo=60):
     return imagen_rotada
 
 
-texto = leer_patente()
+#texto = leer_patente()
