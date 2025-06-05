@@ -13,3 +13,8 @@
 - Hay un primer cambio con respecto a lo anterior, el tema es que si se agranda el ROI, deja de detectar la patente como tal.. si se usa la default (lo cual esta hardcoded) funciona.
 - También mete como "saltos", que hay que rescatar un poco
 - Creo que como para probar el OCR tendríamos.. hay que rectificar y alguna que otra cosita más. No está nada comentado porque me pelié un poco con ChatGPT a ver que me hacía, y buscar otros lados (https://www.youtube.com/watch?v=nQTRqScnX7s&ab_channel=ElLocodelosDatos)
+
+4/06/2025 - 22:12
+- El Pattern Matching funciona con el video nuevo.
+- El que busca contorno, funciona con el video viejo.
+- Los ROI en general los definí a mano. El ROI por defecto está para el video viejo.

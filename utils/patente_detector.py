@@ -107,42 +107,61 @@ def cumple_dimensiones_debug(width, height):
 def detectar_patente(frame_roi, umbral=145):
     gray = cv2.cvtColor(frame_roi, cv2.COLOR_BGR2GRAY)
     _, bw = cv2.threshold(gray, umbral, 255, cv2.THRESH_BINARY_INV)
-
-    bw = cv2.bilateralFilter(bw, 11, 17, 17)
+    # _, bw = cv2.threshold(gray, umbral, 255, cv2.THRESH_BINARY)
+    
+    bw = cv2.bilateralFilter(bw, 11, 9, 9)
 
     contornos, _ = cv2.findContours(bw, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     aspect_ratio_objetivo = 400.0 / 130.0  # ≃3.08
-    min_area = frame_roi.shape[0] * frame_roi.shape[1] * 0.01
+    # min_area = frame_roi.shape[0] * frame_roi.shape[1] * 0.05
+    min_area = 1300
+    max_area = 1600
 
+    # print(f"Area minima: {min_area}")
     mejor_candidato = None
     menor_error_aspect_ratio = float('inf')
+    area_contourns = []
 
     for cnt in contornos:
         area = cv2.contourArea(cnt)
-        if area < min_area:
+        area_contourns.append(area)
+        if area < min_area or area > max_area :
+            # print(area)
             continue
-
-        epsilon = 0.02 * cv2.arcLength(cnt, True)
+        
+        print(f"DEBUG - Area minima pasada: {area} ")
+        epsilon = 0.05 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
 
-        if not es_rectangulo(approx):
-            continue
+        # if not es_rectangulo(approx):
+        #     continue
 
-        
+        # print(f"DEBUG - Es rectangulo: {area} ")
         # Obtenemos el bounding box del posible rectángulo
         x, y, w, h = cv2.boundingRect(approx)
 
-        # validar ancho/alto y aspecto mínimo
-        if not cumple_dimensiones(w, h):
-            continue
+        # # validar ancho/alto y aspecto mínimo
+        # if not cumple_dimensiones(w, h):
+        #     continue
         
+        print(f"DEBUG - Cumplio dimensiones: {area} ")
         aspect = float(w) / float(h)
         error_aspect = abs(aspect - aspect_ratio_objetivo)
 
         if error_aspect < menor_error_aspect_ratio:
             menor_error_aspect_ratio = error_aspect
-            mejor_candidato = approx
+            # mejor_candidato = approx
+            rect = cv2.minAreaRect(cnt)
+            box = cv2.boxPoints(rect)
+            mejor_candidato = np.intp(box)
+
+    # Dibujar todos los contornos detectados en rojo para debug
+    # img_debug_contornos = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
+    # cv2.drawContours(img_debug_contornos, contornos, -1, (0, 0, 255), 1)
+    # print(f"DEBUG - Area Contornos: {area_contourns} ")
+    # cv2.imshow("DEBUG - Todos los contornos", img_debug_contornos)
+    # cv2.waitKey(1)  # Pequeña pausa para actualizar ventana
 
     img_contornos = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
     if mejor_candidato is not None:

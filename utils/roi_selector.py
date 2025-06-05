@@ -7,7 +7,9 @@ class RoiSelector:
         self.roi = None
 
     def usar_roi_por_defecto(self):
-        self.roi = (333, 551, 382, 714)
+        # self.roi = (333, 551, 382, 714)
+        # Roi de solo la patente para el video original (Vertical)
+        self.roi = (447, 965, 139, 101)
         #self.roi = (458, 971, 116, 90)
         print(f"✅ ROI por defecto: {self.roi}")
 

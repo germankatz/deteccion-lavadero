@@ -106,25 +106,27 @@ def main():
                 break
             
             # 1. Rectificar ROI
-            roi_rect = rectificar_roi_hardcoded(frame, roi_selector.roi)
-            
+            # roi_rect = rectificar_roi_hardcoded(frame, roi_selector.roi)
+            x, y, w, h = roi_selector.roi
+            roi_rect = frame[y:y+h, x:x+w]
             # 2. Detectar patente usando la función del archivo
             bw_image, mejor_candidato, img_contornos = detectar_patente(roi_rect)
            
             # Si se detectó una patente válida
-            if mejor_candidato is not None and patente_roi is not None:
-                texto = leer_patente(patente_roi)  # Usar directamente la región extraída
-                tracker.actualizar(texto)
-            else:
-                print("No hay patente válida en este frame")
+            # if mejor_candidato is not None:
+            #     print(mejor_candidato)
+            #     # texto = leer_patente(patente_roi)  # Usar directamente la región extraída
+            #     # tracker.actualizar(texto)
+            # else:
+            #     print("No hay patente válida en este frame")
             
             # Opcional: Mostrar el frame procesado
-            cv2.imshow('ROI con detección', roi_rect)
+            cv2.imshow('ROI con deteccion', roi_rect)
             cv2.imshow('Imagen binarizada', bw_image)
             cv2.imshow('Contornos', img_contornos)
             
             # Salir con 'q'
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(0) & 0xFF == ord('q'):
                 break
 
         # Liberar recursos
