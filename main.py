@@ -5,7 +5,7 @@ from interfaz import elegir_roi, seleccionar_video, elegir_tolerancia_frames, el
 from utils.roi_selector import RoiSelector
 from utils.roi_rectifier import rectificar_roi, rectificar_roi_hardcoded, M_default, dst_corners_default
 from utils.patente_detector import detectar_patentes_pattern_matching, detectar_patente
-from utils.patente_lector import leer_patente
+from utils.patente_lector import leer_patente, bbox_a_puntos
 from utils.patente_tracker import PatenteTracker
 from utils.calcula_homografia import pick_points_and_compute_homography
 
@@ -79,7 +79,9 @@ def main():
                     # x, y, w, h = roi_rectificado
                     
                     # patente_rectificada = frame[tl[1]:tl[1] + gan['h'], tl[0]:tl[0] + gan['w']]
-                    texto = leer_patente(roi_rectificado)  # Usar directamente la región extraída
+                    # Puntos 
+                    roi_patente = bbox_a_puntos(gan['max_loc'], gan['w'], gan['h'])
+                    texto = leer_patente(roi_rectificado, roi_patente)  # Usar directamente la región extraída
                     # Si quieres mostrar texto, descomenta esto:
                     # cv2.putText(roi_rectificado, texto, (tl[0], tl[1] - 10),
                     #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
@@ -109,7 +111,8 @@ def main():
                 break
             
             # 1. Rectificar ROI
-            # roi_rect = rectificar_roi_hardcoded(frame, roi_selector.roi)
+            # Se rompe todo si rectificamos con la imagen completa, como no hay tiempo lo salteamos
+            # roi_rect = rectificar_roi_hardcoded(frame, roi_selector.roi) 
             x, y, w, h = roi_selector.roi
             roi_rect = frame[y:y+h, x:x+w]
             # 2. Detectar patente usando la función del archivo
@@ -119,7 +122,8 @@ def main():
             if mejor_candidato is not None:
                 print(mejor_candidato)
                 cv2.drawContours(roi_rect, [mejor_candidato], -1, (0, 255, 0), 2)
-                texto = leer_patente(roi_rect)  # Usar directamente la región extraída
+                # boundingRect me lo deja en (x, y, w, h)
+                texto = leer_patente(roi_rect, mejor_candidato)  # Usar directamente la región extraída
                 tracker.actualizar(texto)
             else:
                 print("No hay patente válida en este frame")
