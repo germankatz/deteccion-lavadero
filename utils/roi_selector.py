@@ -1,6 +1,7 @@
 import cv2
 import tkinter as tk
 from utils.patente_detector import detectar_patente
+from utils.patente_lector import leer_patente
 
 class RoiSelector:
     def __init__(self):
@@ -114,8 +115,16 @@ class RoiSelector:
             bw, candidates,  vis = detectar_patente(parche)
 
             # 3) Mostrar únicamente el ROI binarizado
-            cv2.imshow("ROI Binarizado", bw)
-            cv2.imshow("Contornos Placa", vis)
+            #cv2.imshow("ROI Binarizado", bw)
+            #cv2.imshow("Contornos Placa", vis)
+
+            # 4) Leer patente 
+            roi_patente=(20, 35, 72, 20)
+            _, _, roi_w, roi_h = roi_patente
+            alto, ancho = vis.shape[:2]
+    
+            if ancho >= roi_w and alto >= roi_h:
+                patente = leer_patente(vis,roi_patente)
 
 
             if cv2.waitKey(int(1000/fps)) & 0xFF == ord('q'):
