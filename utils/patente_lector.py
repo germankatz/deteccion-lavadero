@@ -9,11 +9,11 @@ def leer_patente(img_patente):
     """
     Realiza OCR sobre la imagen de la patente y devuelve el texto.
     """
-    if img is None:
+    if img_patente is None:
         print("❌ Error: no se pudo cargar la imagen.")
         return ""
     else:
-        print("✅ Imagen cargada. Dimensiones:", img.shape)
+        print("✅ Imagen cargada. Dimensiones:", img_patente.shape)
 
     # Ruta absoluta basada en la ubicación del script actual
     #base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # sube desde utils/
@@ -35,7 +35,7 @@ def leer_patente(img_patente):
     
     #binaria = preprocesar_para_ocr(img)    
    
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     izq, centro, der = dividir_patente_en_tres(img)
 
@@ -54,25 +54,23 @@ def leer_patente(img_patente):
 
     return  patente_final.strip()
 
-
-
 def dividir_patente_en_tres(img_patente):
     h, w = img_patente.shape[:2]
     
     tercio = w // 3
     
     izquierda = img_patente[:, :tercio]
-    cv2.imshow("izquierda", izquierda)
-    cv2.waitKey(0)  # Espera que presiones una tecla
-    cv2.destroyAllWindows()
+    # cv2.imshow("izquierda", izquierda)
+    # cv2.waitKey(0)  # Espera que presiones una tecla
+    # cv2.destroyAllWindows()
     centro    = img_patente[:, tercio:2*tercio]
-    cv2.imshow("centro", centro)
-    cv2.waitKey(0)  # Espera que presiones una tecla
-    cv2.destroyAllWindows()
+    # cv2.imshow("centro", centro)
+    # cv2.waitKey(0)  # Espera que presiones una tecla
+    # cv2.destroyAllWindows()
     derecha   = img_patente[:, 2*tercio:]
-    cv2.imshow("derecha", derecha)
-    cv2.waitKey(0)  # Espera que presiones una tecla
-    cv2.destroyAllWindows()
+    # cv2.imshow("derecha", derecha)
+    # cv2.waitKey(0)  # Espera que presiones una tecla
+    # cv2.destroyAllWindows()
 
     return izquierda, centro, derecha
 

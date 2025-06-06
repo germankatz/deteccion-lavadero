@@ -61,7 +61,8 @@ def main():
                 ret, frame = cap.read()
                 if not ret:
                     break
-
+                
+                # ! Esto me devuelve la imagen deformada
                 roi_rectificado = rectificar_roi_hardcoded(frame, roi_selector.roi, M, dst_corners)
 
                 # Detectar patente
@@ -71,13 +72,18 @@ def main():
 
                 # Si no hay location válida, saltamos dibujado de rectángulo
                 if gan['max_loc'] is not None:
-                    tl = gan['max_loc']
+                    tl = gan['max_loc'] 
                     br = (tl[0] + gan['w'], tl[1] + gan['h'])
                     cv2.rectangle(roi_rectificado, tl, br, (0, 255, 0), 2)
                     texto = f"{lbl} (val={gan['max_val']:.2f}, scale={gan['best_scale']})"
+                    # x, y, w, h = roi_rectificado
+                    
+                    # patente_rectificada = frame[tl[1]:tl[1] + gan['h'], tl[0]:tl[0] + gan['w']]
+                    texto = leer_patente(roi_rectificado)  # Usar directamente la región extraída
                     # Si quieres mostrar texto, descomenta esto:
                     # cv2.putText(roi_rectificado, texto, (tl[0], tl[1] - 10),
                     #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                    print(texto)
 
                 cv2.imshow("Imagen patente", roi_rectificado)
 
@@ -86,9 +92,6 @@ def main():
 
             cap.release()
             cv2.destroyAllWindows()
-
-        elif metodo_rectificacion == "rectificacion_roi":
-            ret, frame = cap.read()
 
     # Metodo de agu
     elif metodo_patente == "pattern_matching_alternativo":
@@ -111,15 +114,15 @@ def main():
             roi_rect = frame[y:y+h, x:x+w]
             # 2. Detectar patente usando la función del archivo
             bw_image, mejor_candidato, img_contornos = detectar_patente(roi_rect)
-           
-            # Si se detectó una patente válida
-            # if mejor_candidato is not None:
-            #     print(mejor_candidato)
-            #     # texto = leer_patente(patente_roi)  # Usar directamente la región extraída
-            #     # tracker.actualizar(texto)
-            # else:
-            #     print("No hay patente válida en este frame")
             
+            # Si se detectó una patente válida
+            if mejor_candidato is not None:
+                print(mejor_candidato)
+                cv2.drawContours(roi_rect, [mejor_candidato], -1, (0, 255, 0), 2)
+                texto = leer_patente(roi_rect)  # Usar directamente la región extraída
+                tracker.actualizar(texto)
+            else:
+                print("No hay patente válida en este frame")
             # Opcional: Mostrar el frame procesado
             cv2.imshow('ROI con deteccion', roi_rect)
             cv2.imshow('Imagen binarizada', bw_image)

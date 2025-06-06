@@ -81,7 +81,7 @@ def elegir_metodo_patente():
         "Seleccioná una opción:",
         choices=[
             "1. Usar metodo por defecto (Pattern matching)",
-            "2. Usar metodo alternativo (El del año pasado)",
+            "2. Usar metodo alternativo (Método de area BW)",
             "0. Salir"
         ]
     ).ask()
@@ -99,15 +99,12 @@ def elegir_metodo_rectificacion():
         "Seleccioná una opción:",
         choices=[
             "1. Usar metodo por defecto (Rectificación hardcoded)",
-            "2. Usar metodo alternativo (Rectificación de ROI)",
             "0. Salir"
         ]
     ).ask()
 
     if opcion[0] == "1":
         return "rectificacion_hardcoded"
-    elif opcion[0] == "2":
-        return "rectificacion_roi"
     elif opcion[0] == "0":
         return None
 

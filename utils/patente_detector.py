@@ -300,10 +300,10 @@ def detectar_patentes_pattern_matching(frame_roi, escalas=None):
             if max_val > mejor['max_val']:
                 mejor.update({
                     'max_val': max_val,
-                    'max_loc': max_loc,
+                    'max_loc': max_loc, # max_loc es int,int que devuelve x,y del superior izquierdo.
                     'best_scale': scale,
-                    'w': w,
-                    'h': h,
+                    'w': w, #Ancho del ROI
+                    'h': h, #Alto del ROI
                     'method': method
                 })
                 
