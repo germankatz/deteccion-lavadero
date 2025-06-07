@@ -85,7 +85,7 @@ def main():
                     # Si quieres mostrar texto, descomenta esto:
                     # cv2.putText(roi_rectificado, texto, (tl[0], tl[1] - 10),
                     #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
-                    print(texto)
+                    #print(texto)
 
                 cv2.imshow("Imagen patente", roi_rectificado)
 

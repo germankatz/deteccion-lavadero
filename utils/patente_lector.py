@@ -20,10 +20,23 @@ def leer_patente(img_patente, roi2):
     cv2.imshow("Patente rectificada", img)
     cv2.waitKey(0)
 
+    img_procesada =  preprocesar_patente_para_ocr(img)
+    cv2.imshow("Patente procesada", img_procesada)
+    cv2.waitKey(0)
+
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     config = r'--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    patente_final = pytesseract.image_to_string(img, config=config).strip()
+    patente_final = pytesseract.image_to_string(img_procesada, config=config).strip()
+    #izq, centro, der = dividir_patente_en_tres(img_procesada)
+
+    #izq_text  = ocr_letras(izq)
+    #centro_text = ocr_numeros(centro)
+    #der_text  = ocr_letras(der)
+
+    #patente_final = f"{izq_text}{centro_text}{der_text}"
+    print("Patente detectada:", patente_final)
+
 
     if es_patente_valida(patente_final):
         print("Patente válida detectada:", patente_final.strip())
@@ -37,6 +50,8 @@ def es_patente_valida(texto):
     """
     Valida si el texto tiene formato de patente argentina actual (AA 123 BB).
     """
+    if len(texto) > 7:
+        texto = texto[:6]
     texto = texto.strip().upper().replace(" ", "")
     patron = r"^[A-Z]{2}[0-9]{3}[A-Z]{2}$"
     return re.match(patron, texto) is not None
@@ -117,3 +132,45 @@ def bbox_a_puntos(max_loc, w, h):
         [x,     y + h]     # bottom-left
     ], dtype=np.int32)
     return pts
+
+
+
+
+def preprocesar_patente_para_ocr(img):
+      # Convertir la imagen a escala de grises
+    imagen_gris = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Aplicar umbral para obtener la imagen binaria
+    _, imagen_binaria = cv2.threshold(imagen_gris, 128, 255, cv2.THRESH_BINARY)
+    
+  
+    return imagen_binaria
+
+
+def dividir_patente_en_tres(img_patente):
+    h, w = img_patente.shape[:2]
+    
+    tercio = w // 3
+    
+    izquierda = img_patente[:, :tercio]
+    cv2.imshow("izquierda", izquierda)
+    cv2.waitKey(0)  # Espera que presiones una tecla
+    cv2.destroyAllWindows()
+    centro    = img_patente[:, tercio:2*tercio]
+    cv2.imshow("centro", centro)
+    cv2.waitKey(0)  # Espera que presiones una tecla
+    cv2.destroyAllWindows()
+    derecha   = img_patente[:, 2*tercio:]
+    cv2.imshow("derecha", derecha)
+    cv2.waitKey(0)  # Espera que presiones una tecla
+    cv2.destroyAllWindows()
+
+    return izquierda, centro, derecha
+
+def ocr_letras(img):
+    config = r'--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    return pytesseract.image_to_string(img, config=config).strip()
+
+def ocr_numeros(img):
+    config = r'--oem 3 --psm 7 -c tessedit_char_whitelist=0123456789'
+    return pytesseract.image_to_string(img, config=config).strip()
