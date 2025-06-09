@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Principal fuente (crack): https://www.youtube.com/watch?v=9dyaI3GyUtc&ab_channel=SantiagoFiorino
-
 # VARIABLES GLOBALES
 min_patente_width = 80  # Ancho mínimo esperado de una patente en pixeles
 min_patente_height = 30  # Alto mínimo esperado de una patente en pixeles
@@ -104,70 +102,63 @@ def cumple_dimensiones_debug(width, height):
     print(" → OK: cumple dimensiones y relación de aspecto")
     return True
 
-def detectar_patente(frame_roi, umbral=145):
+def detectar_patente_contorno(frame_roi, umbral=145):
+    # Paso 1: Convertir a escala de grises
     gray = cv2.cvtColor(frame_roi, cv2.COLOR_BGR2GRAY)
+
+    # Paso 2: Umbralización binaria inversa
     _, bw = cv2.threshold(gray, umbral, 255, cv2.THRESH_BINARY_INV)
-    # _, bw = cv2.threshold(gray, umbral, 255, cv2.THRESH_BINARY)
-    
+    # Alternativa: usar THRESH_BINARY normal si los caracteres están en negro
+
+    # Paso 3: Suavizado con filtro bilateral para preservar bordes
     bw = cv2.bilateralFilter(bw, 11, 9, 9)
 
+    # Paso 4: Detección de contornos
     contornos, _ = cv2.findContours(bw, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
-    aspect_ratio_objetivo = 400.0 / 130.0  # ≃3.08
-    # min_area = frame_roi.shape[0] * frame_roi.shape[1] * 0.05
-    min_area = 1300
-    max_area = 1600
+    # Paso 5: Definición de restricciones geométricas
+    aspect_ratio_objetivo = 400.0 / 130.0  # ≃ 3.08 (relación de aspecto típica de una patente)
+    min_area = 1300  # área mínima esperada del rectángulo de patente
+    max_area = 1600  # área máxima esperada
 
-    # print(f"Area minima: {min_area}")
     mejor_candidato = None
-    menor_error_aspect_ratio = float('inf')
-    area_contourns = []
+    menor_error_aspect_ratio = float('inf')  # se usa para encontrar el mejor "match"
+    area_contourns = []  # (opcional) para debugging de áreas
 
+    # Paso 6: Filtrado de contornos por área y forma
     for cnt in contornos:
         area = cv2.contourArea(cnt)
         area_contourns.append(area)
-        if area < min_area or area > max_area :
-            # print(area)
-            continue
-        
-        print(f"DEBUG - Area minima pasada: {area} ")
+
+        if area < min_area or area > max_area:
+            continue  # descartamos contornos muy pequeños o muy grandes
+
+        # Aproximar la forma del contorno (reduce vértices)
         epsilon = 0.05 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
 
-        # if not es_rectangulo(approx):
-        #     continue
-
-        # print(f"DEBUG - Es rectangulo: {area} ")
-        # Obtenemos el bounding box del posible rectángulo
+        # Obtener bounding box para calcular relación de aspecto
         x, y, w, h = cv2.boundingRect(approx)
-
-        # # validar ancho/alto y aspecto mínimo
-        # if not cumple_dimensiones(w, h):
-        #     continue
-        
-        print(f"DEBUG - Cumplio dimensiones: {area} ")
         aspect = float(w) / float(h)
         error_aspect = abs(aspect - aspect_ratio_objetivo)
 
+        # Nos quedamos con el contorno cuya forma más se acerque a una patente
         if error_aspect < menor_error_aspect_ratio:
             menor_error_aspect_ratio = error_aspect
-            # mejor_candidato = approx
             rect = cv2.minAreaRect(cnt)
             box = cv2.boxPoints(rect)
             mejor_candidato = np.intp(box)
 
-    # Dibujar todos los contornos detectados en rojo para debug
-    # img_debug_contornos = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
-    # cv2.drawContours(img_debug_contornos, contornos, -1, (0, 0, 255), 1)
-    # print(f"DEBUG - Area Contornos: {area_contourns} ")
-    # cv2.imshow("DEBUG - Todos los contornos", img_debug_contornos)
-    # cv2.waitKey(1)  # Pequeña pausa para actualizar ventana
-
+    # Paso 7: Visualización (opcional)
     img_contornos = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
     if mejor_candidato is not None:
-        # En alguna parte de estos parámetros salen..
+        # Dibujar en verde el mejor candidato
         cv2.drawContours(img_contornos, [mejor_candidato], -1, (0, 255, 0), 2)
 
+    # Retorna:
+    # - imagen binaria procesada
+    # - coordenadas del mejor contorno candidato
+    # - imagen con contorno dibujado (para debug o visualización)
     return bw, mejor_candidato, img_contornos
 
 
@@ -231,7 +222,6 @@ def detectar_patentes_pattern_matching(frame_roi, escalas=None):
     
     templates = [
         {'label': 'new', 'path': 'img_src/patente_new.png'},
-        # {'label': 'old', 'path': 'img_src/patente_old.jpg'}
     ]
     
     # Extraer canal azul del frame (patentes argentinas tienen fondo azul)
@@ -322,8 +312,8 @@ def detectar_patentes_pattern_matching(frame_roi, escalas=None):
     ganador = resultados[label_ganador] if label_ganador else {}
     
     # Debug info sobre el método ganador
-    if ganador and 'method' in ganador:
-        print(f"[DEBUG] Mejor detección usando: {ganador['method']} con correlación {ganador['max_val']:.3f}")
+    # if ganador and 'method' in ganador:
+    #     print(f"[DEBUG] Mejor detección usando: {ganador['method']} con correlación {ganador['max_val']:.3f}")
     
     return {
         'all': resultados,

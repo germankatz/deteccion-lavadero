@@ -1,4 +1,5 @@
 import pytesseract
+import platform
 import re
 import cv2
 import numpy as np
@@ -24,7 +25,8 @@ def leer_patente(img_patente, roi2):
     cv2.imshow("Patente procesada", img_procesada)
     cv2.waitKey(0)
 
-    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    if platform.system() == 'Windows':
+        pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
     config = r'--oem 3 --psm 7 -c tessedit_char_whitelist=ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     patente_final = pytesseract.image_to_string(img_procesada, config=config).strip()

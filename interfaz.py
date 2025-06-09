@@ -5,6 +5,7 @@ def limpiar_consola():
     # os.system("cls" if os.name == "nt" else "clear")
     return 
 
+# Seleccionador de videos en videos/
 
 def seleccionar_video(carpeta="videos"):
     limpiar_consola()
@@ -21,6 +22,8 @@ def seleccionar_video(carpeta="videos"):
 
     return os.path.join(carpeta, seleccion)
 
+# Selección de ROI
+
 def elegir_roi():
     limpiar_consola()
     opcion = questionary.select(
@@ -34,6 +37,7 @@ def elegir_roi():
 
     return opcion[0]  # "1", "2" o "0"
 
+# Selección de tolerancia de frames
 
 def elegir_tolerancia_frames():
     limpiar_consola()
@@ -54,34 +58,16 @@ def elegir_tolerancia_frames():
         ).ask() 
     elif opcion[0] == "0":
         return None
-    
-def elegir_angulo():
-    limpiar_consola()
-    opcion = questionary.select(
-        "Seleccioná una opción:",
-        choices=[
-            "1. Usar angulo por defecto (60 grados)",
-            "2. Ingresar angulo manualmente (en grados)",
-            "0. Salir"
-        ]
-    ).ask()
 
-    if opcion[0] == "1":
-        return 60
-    elif opcion[0] == "2":
-        return questionary.text(
-            "Ingresá el angulo en grados:"
-        ).ask()
-    elif opcion[0] == "0":
-        return None
+# Elegir el método de detección de patente
 
 def elegir_metodo_patente():
     limpiar_consola()
     opcion = questionary.select(
         "Seleccioná una opción:",
         choices=[
-            "1. Usar metodo por defecto (Pattern matching)",
-            "2. Usar metodo alternativo (Método de area BW)",
+            "1. Usar Pattern Matching",
+            "2. Usar Detección de Contorno",
             "0. Salir"
         ]
     ).ask()
@@ -90,21 +76,6 @@ def elegir_metodo_patente():
         return "pattern_matching"
     elif opcion[0] == "2":
         return "pattern_matching_alternativo"
-    elif opcion[0] == "0":
-        return None
-    
-def elegir_metodo_rectificacion():
-    limpiar_consola()
-    opcion = questionary.select(
-        "Seleccioná una opción:",
-        choices=[
-            "1. Usar metodo por defecto (Rectificación hardcoded)",
-            "0. Salir"
-        ]
-    ).ask()
-
-    if opcion[0] == "1":
-        return "rectificacion_hardcoded"
     elif opcion[0] == "0":
         return None
 

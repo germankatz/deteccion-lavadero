@@ -23,35 +23,36 @@ def rectificar_roi(imagen, roi, angulo=60):
  
     return imagen_rotada
 
-# Valores calculados con
-M_default = np.array([
+def rectificar_roi_hardcoded(imagen, video_path, roi, M = None, dst_corners = None):
+    
+    if "Vertical" in video_path and (M == None) and (dst_corners == None):
+
+        M = np.array([
         [1.448935, 0.730282, -155.000000],
         [-0.148001, 1.413944, 75.000000],
         [0.000632, 0.001040, 1.000000],
-    ], dtype=np.float32)
+        ], dtype=np.float32)
 
-dst_corners_default = [
-    (-155, 75),
-    (320, 15),
-    (463, 518),
-    (210, 622),
-]
-# ##### N and points for horizontal
-# M_default = np.array([
-#     [ 1.416052,    0.335372,  -23.552632],
-#     [-0.044943,    1.110917,   77.723686],
-#     [ 0.000502,    0.000388,    1.000000],
-# ], dtype=np.float32)
+        dst_corners = [
+            (-155, 75),
+            (320, 15),
+            (463, 518),
+            (210, 622),
+        ]
+    else:
+        M = np.array([
+            [ 1.416052,    0.335372,  -23.552632],
+            [-0.044943,    1.110917,   77.723686],
+            [ 0.000502,    0.000388,    1.000000],
+        ], dtype=np.float32)
 
-# dst_corners_default = [
-#     (-23.55263157894737,  77.72368421052632),
-#     (857.3157894736842,   25.907894736842106),
-#     (858.4934210526316,  449.85526315789474),
-#     (156.625,            642.9868421052631),
-# ]
+        dst_corners = [
+            (-23.55263157894737,  77.72368421052632),
+            (857.3157894736842,   25.907894736842106),
+            (858.4934210526316,  449.85526315789474),
+            (156.625,            642.9868421052631),
+        ]
 
-
-def rectificar_roi_hardcoded(imagen, roi, M = M_default, dst_corners = dst_corners_default):
     x, y, w, h = roi
     image_roi = imagen[y : y + h, x : x + w]
 

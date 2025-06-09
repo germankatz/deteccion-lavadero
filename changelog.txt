@@ -1,3 +1,5 @@
+# Principal fuente (crack): https://www.youtube.com/watch?v=9dyaI3GyUtc&ab_channel=SantiagoFiorino
+
 28/05/2025 - 00:46
 
 - Había commiteado algo mal en roi_selector.. ahora hace el seguimiento del ROI correctamente.
@@ -18,3 +20,11 @@
 - El Pattern Matching funciona con el video nuevo.
 - El que busca contorno, funciona con el video viejo.
 - Los ROI en general los definí a mano. El ROI por defecto está para el video viejo.
+
+09/06/2025
+
+- Se borraron cosas duplicadas.
+- Automáticamente detecta si es el video horizontal o vertical según el nombre.
+- Los ROI's y Rectificaciones automáticas van por default según el nombre.
+
+-- !! Falta solamente chequear los valores del pattern_matching del Video_Horizontal

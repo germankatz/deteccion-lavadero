@@ -135,6 +135,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+videos/recorte_horizontal.MOV
 
 # Spyder project settings
 .spyderproject

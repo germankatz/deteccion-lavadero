@@ -1,16 +1,20 @@
 import cv2
 import tkinter as tk
-from utils.patente_detector import detectar_patente
+from utils.patente_detector import detectar_patente_contorno
 
 class RoiSelector:
     def __init__(self):
         self.roi = None
 
-    def usar_roi_por_defecto(self):
-        self.roi = (333, 551, 382, 714)
-        # Roi de solo la patente para el video original (Vertical)
-        # self.roi = (447, 965, 139, 101)
-        #self.roi = (458, 971, 116, 90)
+    def usar_roi_por_defecto(self, videoType):
+        
+        if "Vertical" in videoType:
+            self.roi = (333, 551, 382, 714)
+            # Roi de solo la patente para el video original (Vertical)
+            # self.roi = (447, 965, 139, 101)
+            #self.roi = (458, 971, 116, 90)
+        else:
+            self.roi = (485, 84, 1109, 994)
         print(f"✅ ROI por defecto: {self.roi}")
 
     def _get_screen_size(self):
@@ -35,13 +39,6 @@ class RoiSelector:
         target_h = int(screen_h * 0.75)
         scale = target_h / frame.shape[0]
         resized_frame = cv2.resize(frame, None, fx=scale, fy=scale)
-
-        # Mostrar instrucciones
-        # cv2.putText(resized_frame, "Presiona ENTER para confirmar, ESC para cancelar",
-        #             (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-        # cv2.imshow("Instrucciones", resized_frame)
-        # cv2.waitKey(2000)
-        # cv2.destroyWindow("Instrucciones")
 
         # Selección del ROI
         cv2.namedWindow("ROI", cv2.WINDOW_NORMAL)
@@ -113,7 +110,7 @@ class RoiSelector:
 
             # 2) Extraer y binarizar sólo el parche del ROI
             parche = frame[y:y+h, x:x+w]
-            bw, candidates,  vis = detectar_patente(parche)
+            bw, candidates,  vis = detectar_patente_contorno(parche)
 
             # 3) Mostrar únicamente el ROI binarizado
             cv2.imshow("ROI Binarizado", bw)
