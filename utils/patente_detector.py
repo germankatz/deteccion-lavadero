@@ -146,8 +146,16 @@ def detectar_patente_contorno(frame_roi, umbral=145):
         if error_aspect < menor_error_aspect_ratio:
             menor_error_aspect_ratio = error_aspect
             rect = cv2.minAreaRect(cnt)
+            (cx, cy), (w, h), angle = rect
+
+            # Aumentar artificialmente el alto
+            factor_altura = 1.2  # Aumentar 20%
+            h *= factor_altura
+
+            rect = ((cx, cy), (w, h), angle)  # Reasignar con nuevo alto
             box = cv2.boxPoints(rect)
             mejor_candidato = np.intp(box)
+
 
     # Paso 7: Visualización (opcional)
     img_contornos = cv2.cvtColor(bw, cv2.COLOR_GRAY2BGR)
