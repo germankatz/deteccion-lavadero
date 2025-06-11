@@ -15,15 +15,17 @@ def leer_patente(img_patente, roi2):
     else:
         print("✅ Imagen cargada. Dimensiones:", img_patente.shape)
 
+
     img = rectificar_patente(img_patente, roi2)
 
     # Mostramos la imagen rectificada
-    cv2.imshow("Patente rectificada", img)
-    cv2.waitKey(0)
+    #cv2.imshow("Patente rectificada", img)
+    #cv2.waitKey(0)
 
     img_procesada =  preprocesar_patente_para_ocr(img)
-    cv2.imshow("Patente procesada", img_procesada)
-    cv2.waitKey(0)
+
+    #cv2.imshow("Patente procesada", img_procesada)
+    #cv2.waitKey(0)
 
     if platform.system() == 'Windows':
         pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -35,9 +37,10 @@ def leer_patente(img_patente, roi2):
     #izq_text  = ocr_letras(izq)
     #centro_text = ocr_numeros(centro)
     #der_text  = ocr_letras(der)
-
+    
     #patente_final = f"{izq_text}{centro_text}{der_text}"
-    print("Patente detectada:", patente_final)
+    patente_final = corregir_patente(patente_final)
+    #print("Patente detectada:", patente_final)
 
 
     if es_patente_valida(patente_final):
@@ -45,15 +48,11 @@ def leer_patente(img_patente, roi2):
     else:
         print("Patente inválida o mal leída:", patente_final.strip())
 
-    return patente_final.strip()
+    return patente_final.strip() 
 
 
 def es_patente_valida(texto):
-    """
-    Valida si el texto tiene formato de patente argentina actual (AA 123 BB).
-    """
-    if len(texto) > 7:
-        texto = texto[:6]
+  
     texto = texto.strip().upper().replace(" ", "")
     patron = r"^[A-Z]{2}[0-9]{3}[A-Z]{2}$"
     return re.match(patron, texto) is not None
@@ -155,17 +154,17 @@ def dividir_patente_en_tres(img_patente):
     tercio = w // 3
     
     izquierda = img_patente[:, :tercio]
-    cv2.imshow("izquierda", izquierda)
-    cv2.waitKey(0)  # Espera que presiones una tecla
-    cv2.destroyAllWindows()
+    #cv2.imshow("izquierda", izquierda)
+    #cv2.waitKey(0)  # Espera que presiones una tecla
+    #cv2.destroyAllWindows()
     centro    = img_patente[:, tercio:2*tercio]
-    cv2.imshow("centro", centro)
-    cv2.waitKey(0)  # Espera que presiones una tecla
-    cv2.destroyAllWindows()
+    #cv2.imshow("centro", centro)
+    #cv2.waitKey(0)  # Espera que presiones una tecla
+    #cv2.destroyAllWindows()
     derecha   = img_patente[:, 2*tercio:]
-    cv2.imshow("derecha", derecha)
-    cv2.waitKey(0)  # Espera que presiones una tecla
-    cv2.destroyAllWindows()
+    #cv2.imshow("derecha", derecha)
+    #cv2.waitKey(0)  # Espera que presiones una tecla
+    #cv2.destroyAllWindows()
 
     return izquierda, centro, derecha
 
@@ -176,3 +175,34 @@ def ocr_letras(img):
 def ocr_numeros(img):
     config = r'--oem 3 --psm 7 -c tessedit_char_whitelist=0123456789'
     return pytesseract.image_to_string(img, config=config).strip()
+
+def corregir_patente(texto_ocr):
+    if len(texto_ocr) > 7:
+        texto_ocr =texto_ocr[:6]
+    texto_ocr = texto_ocr.strip().upper().replace(" ", "")
+    
+    if len(texto_ocr) != 7:
+        return texto_ocr  # No tiene el formato esperado, no corregimos
+    
+    letras_inicio = texto_ocr[:2]
+    numeros_ocr = texto_ocr[2:5]
+    letras_final = texto_ocr[5:]
+    
+    # Correcciones típicas
+    correcciones = {
+        'O': '0',
+        'Q': '0',
+        'D': '0',
+        'G': '0',
+        'I': '1',
+        'S': '5',
+        'Z': '2'
+    }
+    
+    numeros_corregidos = ''.join([correcciones.get(c, c) for c in numeros_ocr])
+
+    return letras_inicio + numeros_corregidos + letras_final
+
+
+
+
