@@ -45,10 +45,13 @@ def leer_patente(img_patente, roi2):
 
     if es_patente_valida(patente_final):
         print("Patente válida detectada:", patente_final.strip())
+        return patente_final.strip() 
     else:
         print("Patente inválida o mal leída:", patente_final.strip())
+    
+    return None
 
-    return patente_final.strip() 
+    
 
 
 def es_patente_valida(texto):
