@@ -226,7 +226,7 @@ def detectar_patentes_pattern_matching(frame_roi, escalas=None):
     
     # Escalas reducidas por defecto - menos iteraciones = más velocidad
     if escalas is None:
-        escalas = [0.1, 0.15, 0.2, 0.25, 0.3]  # 5 escalas en lugar de 10
+        escalas = [0.1, 0.15, 0.18, 0.2, 0.25, 0.3, 0.56]  # 5 escalas en lugar de 10
     
     templates = [
         {'label': 'new', 'path': 'img_src/patente_new.png'},

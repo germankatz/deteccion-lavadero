@@ -14,7 +14,7 @@ class RoiSelector:
             # self.roi = (447, 965, 139, 101)
             #self.roi = (458, 971, 116, 90)
         else:
-            self.roi = (485, 84, 1109, 994)
+            self.roi = (457, 48, 1356, 1009)
         print(f"✅ ROI por defecto: {self.roi}")
 
     def _get_screen_size(self):
